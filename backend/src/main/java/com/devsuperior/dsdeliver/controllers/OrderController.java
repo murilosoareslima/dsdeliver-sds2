@@ -33,6 +33,7 @@ public class OrderController {
 	@PostMapping
 	public ResponseEntity<OrderDTO> insert(@RequestBody OrderDTO dto) {
 		dto = service.insert(dto);
+		//nao entendi muito bem como funciona esse serveletUri
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
 				.buildAndExpand(dto.getId()).toUri();
 		return ResponseEntity.created(uri).body(dto);
