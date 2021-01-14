@@ -1,3 +1,4 @@
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, ScrollView, Alert } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
@@ -10,15 +11,31 @@ function Orders() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [orders, setOrders] = useState<Order[]>([]);
+    const navigation = useNavigation();
+    //isFocused é um hook para indicar se o componente foi acionado ou nao
+    //sendo assim podemos usar ele pra saber a hora de renderizar a pagina novamente
+    const isFocused = useIsFocused();
 
-    //useeffect é para que toda vez que a tela seja renderizada, ele tome uma acao
-    useEffect(() => {
+    const handleOnPress = (order: Order) => {
+        navigation.navigate('OrderDetails', {
+            order
+        });
+    }
+
+    const fetchData = () => {
         setIsLoading(true);
         fetchOrders()
             .then(response => setOrders(response.data))
             .catch(error => Alert.alert('Houve um erro ao buscar os pedidos!'))
             .finally(() => setIsLoading(false));
-    }, []);
+    }
+    //useeffect é para que toda vez que a tela seja renderizada, ele tome uma acao
+    
+    useEffect(() => {
+        if(isFocused) {
+            fetchData();
+        }
+    }, [isFocused]);
 
     return (
         <>
@@ -28,7 +45,9 @@ function Orders() {
                     <Text style={styles.text}>Buscando Pedidos...</Text>
                 ) : (
                         orders.map(order => (
-                            <TouchableWithoutFeedback key={order.id}>
+                            <TouchableWithoutFeedback 
+                                key={order.id} 
+                                onPress={() => handleOnPress(order)}>
                                 <OrderCard order={order} />
                             </TouchableWithoutFeedback>
                         ))
